@@ -112,7 +112,7 @@ if len(good) > MIN_MATCH_COUNT:
 
     # Establish a homography
     M, _ = cv2.findHomography(src_pts, dst_pts, cv2.RANSAC,5.0)
-    
+
     result = warpImages(img2, img1, M)
 
     cv2_imshow(result)
