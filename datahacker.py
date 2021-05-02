@@ -1,4 +1,4 @@
-#http://datahacker.rs/005-how-to-create-a-panorama-image-using-opencv-with-python/
+# http://datahacker.rs/005-how-to-create-a-panorama-image-using-opencv-with-python/
 import sys
 import cv2
 import numpy as np
@@ -29,13 +29,14 @@ cv2_imshow(cv2.drawKeypoints(img2, keypoints2, None, (255, 0, 255)))
 bf = cv2.BFMatcher_create(cv2.NORM_HAMMING)
 
 # Find matching points
-matches = bf.knnMatch(descriptors1, descriptors2,k=2)
+matches = bf.knnMatch(descriptors1, descriptors2, k=2)
 
 print(keypoints1[0].pt)
 print(keypoints1[0].size)
 print("Descriptor of the first keypoint: ")
 print(descriptors1[0])
 print(matches_sorted[0].distance)
+
 
 def draw_matches(img1, keypoints1, img2, keypoints2, matches):
     r, c = img1.shape[:2]
@@ -54,19 +55,22 @@ def draw_matches(img1, keypoints1, img2, keypoints2, matches):
         (x2, y2) = keypoints2[img2_idx].pt
 
         # Draw circles on the keypoints
-        cv2.circle(output_img, (int(x1),int(y1)), 4, (0, 255, 255), 1)
-        cv2.circle(output_img, (int(x2)+c,int(y2)), 4, (0, 255, 255), 1)
+        cv2.circle(output_img, (int(x1), int(y1)), 4, (0, 255, 255), 1)
+        cv2.circle(output_img, (int(x2)+c, int(y2)), 4, (0, 255, 255), 1)
 
         # Connect the same keypoints
-        cv2.line(output_img, (int(x1),int(y1)), (int(x2)+c,int(y2)), (0, 255, 255), 1)
+        cv2.line(output_img, (int(x1), int(y1)),
+                 (int(x2)+c, int(y2)), (0, 255, 255), 1)
 
     return output_img
+
 
 all_matches = []
 for m, n in matches:
     all_matches.append(m)
 
-img3 = draw_matches(img1_gray, keypoints1, img2_gray, keypoints2, all_matches[:30])
+img3 = draw_matches(img1_gray, keypoints1, img2_gray,
+                    keypoints2, all_matches[:30])
 cv2_imshow(img3)
 
 # Finding the best matches
@@ -75,43 +79,54 @@ for m, n in matches:
     if m.distance < 0.6 * n.distance:
         good.append(m)
 
-cv2_imshow(cv2.drawKeypoints(img1, [keypoints1[m.queryIdx] for m in good], None, (255, 0, 255)))
+cv2_imshow(cv2.drawKeypoints(
+    img1, [keypoints1[m.queryIdx] for m in good], None, (255, 0, 255)))
+
 
 def warpImages(img1, img2, H):
 
     rows1, cols1 = img1.shape[:2]
     rows2, cols2 = img2.shape[:2]
 
-    list_of_points_1 = np.float32([[0,0], [0, rows1],[cols1, rows1], [cols1, 0]]).reshape(-1, 1, 2)
-    temp_points = np.float32([[0,0], [0,rows2], [cols2,rows2], [cols2,0]]).reshape(-1,1,2)
+    list_of_points_1 = np.float32(
+        [[0, 0], [0, rows1], [cols1, rows1], [cols1, 0]]).reshape(-1, 1, 2)
+    temp_points = np.float32(
+        [[0, 0], [0, rows2], [cols2, rows2], [cols2, 0]]).reshape(-1, 1, 2)
 
     # When we have established a homography we need to warp perspective
     # Change field of view
     list_of_points_2 = cv2.perspectiveTransform(temp_points, H)
 
-    list_of_points = np.concatenate((list_of_points_1,list_of_points_2), axis=0)
+    list_of_points = np.concatenate(
+        (list_of_points_1, list_of_points_2), axis=0)
 
     [x_min, y_min] = np.int32(list_of_points.min(axis=0).ravel() - 0.5)
     [x_max, y_max] = np.int32(list_of_points.max(axis=0).ravel() + 0.5)
 
-    translation_dist = [-x_min,-y_min]
+    translation_dist = [-x_min, -y_min]
 
-    H_translation = np.array([[1, 0, translation_dist[0]], [0, 1, translation_dist[1]], [0, 0, 1]])
+    H_translation = np.array([[1, 0, translation_dist[0]], [
+                             0, 1, translation_dist[1]], [0, 0, 1]])
 
-    output_img = cv2.warpPerspective(img2, H_translation.dot(H), (x_max-x_min, y_max-y_min))
-    output_img[translation_dist[1]:rows1+translation_dist[1], translation_dist[0]:cols1+translation_dist[0]] = img1
+    output_img = cv2.warpPerspective(
+        img2, H_translation.dot(H), (x_max-x_min, y_max-y_min))
+    output_img[translation_dist[1]:rows1+translation_dist[1],
+               translation_dist[0]:cols1+translation_dist[0]] = img1
 
     return output_img
+
 
 MIN_MATCH_COUNT = 10
 
 if len(good) > MIN_MATCH_COUNT:
     # Convert keypoints to an argument for findHomography
-    src_pts = np.float32([ keypoints1[m.queryIdx].pt for m in good]).reshape(-1,1,2)
-    dst_pts = np.float32([ keypoints2[m.trainIdx].pt for m in good]).reshape(-1,1,2)
+    src_pts = np.float32(
+        [keypoints1[m.queryIdx].pt for m in good]).reshape(-1, 1, 2)
+    dst_pts = np.float32(
+        [keypoints2[m.trainIdx].pt for m in good]).reshape(-1, 1, 2)
 
     # Establish a homography
-    M, _ = cv2.findHomography(src_pts, dst_pts, cv2.RANSAC,5.0)
+    M, _ = cv2.findHomography(src_pts, dst_pts, cv2.RANSAC, 5.0)
 
     result = warpImages(img2, img1, M)
 
