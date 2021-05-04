@@ -86,9 +86,11 @@ class VideoStitcher:
         frame1 = frames[0]
         height, width, layers = frame1.shape
 
-        # print(type(frame1))
+        # print(frames.__len__())
+        # print(fps)
 
-        clip = cv2.VideoWriter(self.video_out_path, 0, 1, (width, height))
+        clip = cv2.VideoWriter(self.video_out_path, 0,
+                               fps/frames.__len__(), (width, height))
 
         for frame in frames:
             clip.write(frame)
