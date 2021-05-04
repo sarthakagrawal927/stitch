@@ -158,7 +158,9 @@ class VideoStitcher:
         # Save video
         print('[INFO]: Saving {} in {}'.format(self.video_out_path.split('/')[-1],
                                                os.path.dirname(self.video_out_path)))
+
         clip = ImageSequenceClip(frames, fps=fps)
+        
         clip.write_videofile(self.video_out_path,
                              codec='mpeg4', audio=False, verbose=False)
         print('[INFO]: {} saved'.format(self.video_out_path.split('/')[-1]))
