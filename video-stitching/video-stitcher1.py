@@ -7,7 +7,7 @@ from moviepy.editor import ImageSequenceClip
 
 
 class VideoStitcher:
-    def __init__(self, left_video_in_path, right_video_in_path, video_out_path, video_out_width=800, display=True):
+    def __init__(self, left_video_in_path, right_video_in_path, video_out_path, video_out_width=800, display=False):
         # Initialize arguments
         self.left_video_in_path = left_video_in_path
         self.right_video_in_path = right_video_in_path
@@ -82,15 +82,28 @@ class VideoStitcher:
         # Save video
         print('[INFO]: Saving {} in {}'.format(self.video_out_path.split('/')[-1],
                                                os.path.dirname(self.video_out_path)))
-        clip = ImageSequenceClip(frames, fps=fps)
-        clip.write_videofile(self.video_out_path,
-                             codec='mpeg4', audio=False, verbose=False)
-        print('[INFO]: {} saved'.format(self.video_out_path.split('/')[-1]))
+
+        frame1 = frames[0]
+        height, width, layers = frame1.shape
+
+        # print(type(frame1))
+
+        clip = cv2.VideoWriter(self.video_out_path, 0, 1, (width, height))
+
+        for frame in frames:
+            clip.write(frame)
+
+        clip.release()
+
+        # clip = ImageSequenceClip(frames, fps=fps)
+        # clip.write_videofile(self.video_out_path,
+        #                      codec='mpeg4', audio=False, verbose=False)
+        # print('[INFO]: {} saved'.format(self.video_out_path.split('/')[-1]))
 
 
 # Example call to 'VideoStitcher'
-stitcher = VideoStitcher(left_video_in_path='test3_1.mp4',
-                         right_video_in_path='test3_2.mp4',
-                         video_out_path='test_output1_3.mp4')
+stitcher = VideoStitcher(left_video_in_path='test1_1.mp4',
+                         right_video_in_path='test1_2.mp4',
+                         video_out_path='test_output1_1.avi')
 
 stitcher.run()
