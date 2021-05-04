@@ -5,6 +5,7 @@ import tqdm
 import os
 from moviepy.editor import ImageSequenceClip
 
+
 class VideoStitcher:
     def __init__(self, left_video_in_path, right_video_in_path, video_out_path, video_out_width=800, display=True):
         # Initialize arguments
@@ -88,8 +89,8 @@ class VideoStitcher:
 
 
 # Example call to 'VideoStitcher'
-stitcher = VideoStitcher(left_video_in_path='sample_1.mp4',
-                         right_video_in_path='sample_2.mp4',
-                         video_out_path='sample_output_3.mp4')
+stitcher = VideoStitcher(left_video_in_path='test3_1.mp4',
+                         right_video_in_path='test3_2.mp4',
+                         video_out_path='test_output1_3.mp4')
 
 stitcher.run()
