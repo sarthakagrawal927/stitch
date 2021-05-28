@@ -1,9 +1,10 @@
+# using complete stitcher class
+
 import cv2
 import numpy as np
 import imutils
 import tqdm
 import os
-from moviepy.editor import ImageSequenceClip
 
 
 class VideoStitcher:
@@ -96,11 +97,6 @@ class VideoStitcher:
             clip.write(frame)
 
         clip.release()
-
-        # clip = ImageSequenceClip(frames, fps=fps)
-        # clip.write_videofile(self.video_out_path,
-        #                      codec='mpeg4', audio=False, verbose=False)
-        # print('[INFO]: {} saved'.format(self.video_out_path.split('/')[-1]))
 
 
 # Example call to 'VideoStitcher'

@@ -1,15 +1,14 @@
-# the github code
+# Github Code with color coding fixed
 
 import cv2
 import numpy as np
 import imutils
 import tqdm
 import os
-from moviepy.editor import ImageSequenceClip
 
 
 class VideoStitcher:
-    def __init__(self, left_video_in_path, right_video_in_path, video_out_path, video_out_width=800, display=True):
+    def __init__(self, left_video_in_path, right_video_in_path, video_out_path, video_out_width=1200, display=False):
         # Initialize arguments
         self.left_video_in_path = left_video_in_path
         self.right_video_in_path = right_video_in_path
@@ -20,10 +19,12 @@ class VideoStitcher:
         # Initialize the saved homography matrix
         self.saved_homo_matrix = None
 
-    def stitch(self, images, ratio=0.75, reproj_thresh=4.0):
+    def stitch(self, images, ratio=0.75, reproj_thresh=100.0):
         # Unpack the images
         (image_b, image_a) = images
 
+        # image_a = cv2.cvtColor(image_a, cv2.COLOR_BGR2RGB)
+        # image_b = cv2.cvtColor(image_b, cv2.COLOR_BGR2RGB)
         # If the saved homography matrix is None, then we need to apply keypoint matching to construct it
         if self.saved_homo_matrix is None:
             # Detect keypoints and extract
@@ -43,10 +44,11 @@ class VideoStitcher:
 
         # Apply a perspective transform to stitch the images together using the saved homography matrix
         output_shape = (image_a.shape[1] + image_b.shape[1], image_a.shape[0])
+
         result = cv2.warpPerspective(
             image_a, self.saved_homo_matrix, output_shape)
-        result[0:image_b.shape[0], 0:image_b.shape[1]] = image_b
 
+        result[0:image_b.shape[0], 0:image_b.shape[1]] = image_b
         # Return the stitched image
         return result
 
@@ -54,6 +56,7 @@ class VideoStitcher:
     def detect_and_extract(image):
         # Detect and extract features from the image (DoG keypoint detector and SIFT feature extractor)
         descriptor = cv2.xfeatures2d.SIFT_create()
+
         (keypoints, features) = descriptor.detectAndCompute(image, None)
 
         # Convert the keypoints from KeyPoint objects to numpy arrays
@@ -144,10 +147,10 @@ class VideoStitcher:
                 # Add frame to video
                 stitched_frame = imutils.resize(
                     stitched_frame, width=self.video_out_width)
+
                 frames.append(stitched_frame)
 
                 if self.display:
-                    # Show the output images
                     cv2.imshow("Result", stitched_frame)
 
                 # If the 'q' key was pressed, break from the loop
@@ -161,16 +164,20 @@ class VideoStitcher:
         print('[INFO]: Saving {} in {}'.format(self.video_out_path.split('/')[-1],
                                                os.path.dirname(self.video_out_path)))
 
-        clip = ImageSequenceClip(frames, fps=fps)
+        height, width, layers = frames[0].shape
 
-        clip.write_videofile(self.video_out_path,
-                             codec='mpeg4', audio=False, verbose=False)
+        clip = cv2.VideoWriter(self.video_out_path, cv2.VideoWriter_fourcc(*'mp4v'),
+                               30, (width, height))
+
+        for frame in frames:
+            clip.write(frame)
+
+        clip.release()
         print('[INFO]: {} saved'.format(self.video_out_path.split('/')[-1]))
 
 
-# Example call to 'VideoStitcher'
-stitcher = VideoStitcher(left_video_in_path='test3_1.mp4',
-                         right_video_in_path='test3_2.mp4',
-                         video_out_path='test_output3.mp4')
+stitcher = VideoStitcher(left_video_in_path='test1_1.mp4',
+                         right_video_in_path='test1_2.mp4',
+                         video_out_path='test_output_surf.mp4')
 
 stitcher.run()
