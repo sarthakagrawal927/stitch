@@ -6,7 +6,6 @@ import imutils
 import tqdm
 import os
 
-
 class VideoStitcher:
     def __init__(self, left_video_in_path, right_video_in_path, video_out_path, video_out_width=1200, display=False):
         # Initialize arguments

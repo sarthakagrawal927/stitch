@@ -1,1 +1,3 @@
 .vscode
+gui/__pycache__
+gui/mirror.py
