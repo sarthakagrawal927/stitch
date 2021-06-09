@@ -102,6 +102,6 @@ class VideoStitcher:
 # Example call to 'VideoStitcher'
 stitcher = VideoStitcher(left_video_in_path='test1_1.mp4',
                          right_video_in_path='test1_2.mp4',
-                         video_out_path='test_output1_1.avi')
+                         video_out_path='send_output1_1.avi')
 
 stitcher.run()
