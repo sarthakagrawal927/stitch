@@ -175,7 +175,7 @@ class VideoStitcher:
         print('[INFO]: {} saved'.format(self.video_out_path.split('/')[-1]))
 
 def main(video1,video2):
-    videoOutPath = 'test_output_surf.mp4'
+    videoOutPath = video1.split("/")[-1].split("_")[0] + ".mp4"
     stitcher = VideoStitcher(left_video_in_path=video1,
                             right_video_in_path=video2,
                             video_out_path=videoOutPath)
@@ -183,6 +183,3 @@ def main(video1,video2):
     ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
     returnPath = os.path.join(ROOT_DIR, videoOutPath)
     return  returnPath
-
-# hellp = main("/home/sarthakagrawal/Desktop/projects/Stitch/video-stitching/test1_1.mp4","/home/sarthakagrawal/Desktop/projects/Stitch/video-stitching/test1_2.mp4")
-# print(hellp)
