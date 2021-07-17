@@ -18,12 +18,12 @@ def browserFunction2():
 def getVideo():
     newFile = main(pathlabel1['text'],pathlabel2['text'])
     messagebox.showinfo("Output","Hi Output is ready, press ok to play")
-    playVideo(newFile, solution_video, (900,600))
+    playVideo(newFile, solution_video, (1200,700))
     playVideo(pathlabel1['text'], video1, (480,320))
     playVideo(pathlabel2['text'], video2, (480,320))
 
 root = Tk()
-root.attributes('-fullscreen', True) # make main window full-screen
+# root.attributes('-fullscreen', True) # make main window full-screen
 
 # video labels
 solution_video = Label(root)
