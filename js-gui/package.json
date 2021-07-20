@@ -1,7 +1,7 @@
 {
-  "name": "electron-quick-start",
+  "name": "stitch",
   "version": "1.0.0",
-  "description": "A minimal Electron application",
+  "description": "Stitching",
   "main": "main.js",
   "scripts": {
     "start": "electron ."
@@ -13,8 +13,6 @@
     "tutorial",
     "demo"
   ],
-  "author": "GitHub",
-  "license": "CC0-1.0",
   "devDependencies": {
     "electron": "^13.1.7",
     "video.js": "^7.13.3"

@@ -10,7 +10,7 @@ let outputPath = "";
 ipcMain.on("asynchronous-message", (event, arg) => {
   videoPaths.push(arg);
   if (videoPaths.length == 2) {
-    let pyshell = new PythonShell("hello.py");
+    let pyshell = new PythonShell("app.py");
     pyshell.send(videoPaths);
 
     pyshell.on("message", function (message) {
@@ -53,7 +53,6 @@ function createWindow() {
 app.whenReady().then(() => {
   createWindow();
   console.log("appready");
-
   app.on("activate", function () {
     // On macOS it's common to re-create a window in the app when the
     // dock icon is clicked and there are no other windows open.

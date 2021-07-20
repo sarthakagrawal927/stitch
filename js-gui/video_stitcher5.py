@@ -175,7 +175,7 @@ class VideoStitcher:
         print('[INFO]: {} saved'.format(self.video_out_path.split('/')[-1]))
 
 def main(video1,video2):
-    videoOutPath = video1.split("/")[-1].split("_")[0] + ".mp4"
+    videoOutPath = "output/" + video1.split("/")[-1].split("_")[0] + ".mp4"
     stitcher = VideoStitcher(left_video_in_path=video1,
                             right_video_in_path=video2,
                             video_out_path=videoOutPath)
