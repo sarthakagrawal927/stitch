@@ -2,3 +2,4 @@
 gui/__pycache__
 gui/mirror.py
 js-gui/__pycache__
+js-gui/pnpm-lock.yaml

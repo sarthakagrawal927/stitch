@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html>
-  <head><link href="https://vjs.zencdn.net/7.11.4/video-js.css" rel="stylesheet" />
-
+  <head>
     <meta charset="UTF-8">
     <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'">
@@ -12,20 +11,23 @@
   <body>
     <h1>Welcome</h1>
     <input type="file" id="video1"><input type="file" id="video2">
-    <button type="submit" value="Submit" id="submit">click</button>
+    <button type="submit" value="Submit" id="submit">compute</button>
     <button  id="play">play</button>
+    <button id="pause">pause</button>
+    <div>
+      <video controls height="35%" width="40%" id="video1_player">
+        <source id="source1" src="" type="video/mp4">
+        <!-- fallback content here -->
+      </video>
+      <video controls height="35%" width="40%" id="video2_player">
+        <source id="source2" src="" type="video/mp4">
+        <!-- fallback content here -->
+      </video>
+    </div>
 
-    <video controls autoplay height="500" width-"500" id="video1_player">
-      <source id="source1" src="" type="video/mp4">
-      <!-- fallback content here -->
-    </video>
-    <video controls autoplay height="500" width-"500" id="video2_player">
-       <source id="source2" src="" type="video/mp4">
-          <!-- fallback content here -->
-    </video>
-    <video controls autoplay height="500" width-"1000" id="outputVideo_player">
-      <source id="outputSource" src="" type="video/mp4">
-      <!-- fallback content here -->
+    <video controls height="35%" width="80%" id="output_player">
+      <source id="output" src="" type="video/mp4">
+    Can't load
     </video>
     <!-- You can also require other files to run in this process -->
     <script src="renderer.js"></script>
