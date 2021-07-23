@@ -1,4 +1,4 @@
-# Github Code with color coding fixed
+# Memory conscious
 
 import cv2
 import numpy as np
@@ -53,10 +53,29 @@ class VideoStitcher:
 
     @staticmethod
     def detect_and_extract(image):
+
         # Detect and extract features from the image (DoG keypoint detector and SIFT feature extractor)
         descriptor = cv2.xfeatures2d.SIFT_create()
-
         (keypoints, features) = descriptor.detectAndCompute(image, None)
+        
+        # #SURF
+        # gray_img = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        # surf = cv2.SURF_create()
+        # keypoints, features = surf.detectAndCompute(gray_img, None)
+
+
+        # #FAST - only keypoint detector
+        # fast = cv2.FastFeatureDetector_create(threshold=25)
+        # # # find and draw the keypoints
+        # kp = fast.detect(image,None)
+        # # BRISK - extract features
+        # br = cv2.BRISK_create();
+        # keypoints, features = br.compute(image,  kp)
+        
+        #ORB
+        # gray_img = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        # orb = cv2.ORB_create(nfeatures=2000)
+        # keypoints, features = orb.detectAndCompute(gray_img, None)
 
         # Convert the keypoints from KeyPoint objects to numpy arrays
         keypoints = np.float32([keypoint.pt for keypoint in keypoints])
@@ -128,12 +147,14 @@ class VideoStitcher:
                        int(right_video.get(cv2.CAP_PROP_FRAME_COUNT)))
         fps = int(left_video.get(cv2.CAP_PROP_FPS))
         frames = []
-
+        i=0
         for _ in tqdm.tqdm(np.arange(n_frames)):
             # Grab the frames from their respective video streams
             ok, left = left_video.read()
             _, right = right_video.read()
-
+            
+           
+            
             if ok:
                 # Stitch the frames together to form the panorama
                 stitched_frame = self.stitch([left, right])
@@ -147,7 +168,15 @@ class VideoStitcher:
                 stitched_frame = imutils.resize(
                     stitched_frame, width=self.video_out_width)
 
-                frames.append(stitched_frame)
+                #frames.append(stitched_frame)
+        
+                if i == 0 :
+                    height, width, layers = stitched_frame.shape
+                    clip = cv2.VideoWriter(self.video_out_path, cv2.VideoWriter_fourcc(*'mp4v'),
+                                    30, (width, height))
+                    i=1
+                
+                clip.write(stitched_frame)
 
                 if self.display:
                     cv2.imshow("Result", stitched_frame)
@@ -163,13 +192,13 @@ class VideoStitcher:
         print('[INFO]: Saving {} in {}'.format(self.video_out_path.split('/')[-1],
                                                os.path.dirname(self.video_out_path)))
 
-        height, width, layers = frames[0].shape
+        # height, width, layers = frames[0].shape
 
-        clip = cv2.VideoWriter(self.video_out_path, cv2.VideoWriter_fourcc(*'mp4v'),
-                               30, (width, height))
+        # clip = cv2.VideoWriter(self.video_out_path, cv2.VideoWriter_fourcc(*'mp4v'),
+        #                        30, (width, height))
 
-        for frame in frames:
-            clip.write(frame)
+        # for frame in frames:
+        #     clip.write(frame)
 
         clip.release()
         print('[INFO]: {} saved'.format(self.video_out_path.split('/')[-1]))
@@ -177,6 +206,6 @@ class VideoStitcher:
 
 stitcher = VideoStitcher(left_video_in_path='/Users/sarthakagrawal/Desktop/stitch/SamsungInput/Device1/20210625_115248.mp4',
                          right_video_in_path='/Users/sarthakagrawal/Desktop/stitch/SamsungInput/Device2/20210625_115238.mp4',
-                         video_out_path='/Users/sarthakagrawal/Desktop/stitch/test.mp4')
+                         video_out_path='op_2.mp4')
 
 stitcher.run()
