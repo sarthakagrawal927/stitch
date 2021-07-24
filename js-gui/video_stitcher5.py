@@ -165,7 +165,7 @@ class VideoStitcher:
 
         height, width, layers = frames[0].shape
 
-        clip = cv2.VideoWriter(self.video_out_path, cv2.VideoWriter_fourcc(*'MP4V'),
+        clip = cv2.VideoWriter(self.video_out_path, cv2.VideoWriter_fourcc(*'XVID'),
                                30, (width, height))
 
         for frame in frames:
