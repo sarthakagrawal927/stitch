@@ -68,7 +68,7 @@ class VideoStitcher:
                     stitched, width=self.video_out_width)
 
                 frames.append(stitched)
-
+            print(frames)
             if self.display:
                 # Show the output images
                 cv2.imshow("Result", stitched)
@@ -100,8 +100,8 @@ class VideoStitcher:
 
 
 # Example call to 'VideoStitcher'
-stitcher = VideoStitcher(left_video_in_path='test1_1.mp4',
-                         right_video_in_path='test1_2.mp4',
-                         video_out_path='send_output1_1.avi')
+stitcher = VideoStitcher(left_video_in_path='/Users/sarthakagrawal/Desktop/stitch/SamsungInput/Device1/20210625_121122.mp4',
+                         right_video_in_path='/Users/sarthakagrawal/Desktop/stitch/SamsungInput/Device2/20210625_121119.mp4',
+                         video_out_path='/Users/sarthakagrawal/Desktop/stitch/test.mp4')
 
 stitcher.run()

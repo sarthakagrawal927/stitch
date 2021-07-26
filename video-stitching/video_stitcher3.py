@@ -7,7 +7,7 @@ import tqdm
 import os
 
 class VideoStitcher:
-    def __init__(self, left_video_in_path, right_video_in_path, video_out_path, video_out_width=1200, display=False):
+    def __init__(self, left_video_in_path, right_video_in_path, video_out_path, video_out_width=800, display=True):
         # Initialize arguments
         self.left_video_in_path = left_video_in_path
         self.right_video_in_path = right_video_in_path
@@ -77,7 +77,7 @@ class VideoStitcher:
                 matches.append((raw_match[0].trainIdx, raw_match[0].queryIdx))
 
         # Computing a homography requires at least 4 matches
-        if len(matches) > 4:
+        if len(matches) > 500:
             # Construct the two sets of points
             points_a = np.float32([keypoints_a[i] for (_, i) in matches])
             points_b = np.float32([keypoints_b[i] for (i, _) in matches])
@@ -127,6 +127,7 @@ class VideoStitcher:
         n_frames = min(int(left_video.get(cv2.CAP_PROP_FRAME_COUNT)),
                        int(right_video.get(cv2.CAP_PROP_FRAME_COUNT)))
         fps = int(left_video.get(cv2.CAP_PROP_FPS))
+        print(fps)
         frames = []
 
         for _ in tqdm.tqdm(np.arange(n_frames)):
@@ -165,8 +166,8 @@ class VideoStitcher:
 
         height, width, layers = frames[0].shape
 
-        clip = cv2.VideoWriter(self.video_out_path, cv2.VideoWriter_fourcc(*'mp4v'),
-                               30, (width, height))
+        clip = cv2.VideoWriter(self.video_out_path, cv2.VideoWriter_fourcc(*'avc1'),
+                               30, (height,width))
 
         for frame in frames:
             clip.write(frame)
@@ -175,8 +176,8 @@ class VideoStitcher:
         print('[INFO]: {} saved'.format(self.video_out_path.split('/')[-1]))
 
 
-stitcher = VideoStitcher(left_video_in_path='/Users/sarthakagrawal/Desktop/stitch/SamsungInput/Device1/20210625_115248.mp4',
-                         right_video_in_path='/Users/sarthakagrawal/Desktop/stitch/SamsungInput/Device2/20210625_115238.mp4',
-                         video_out_path='/Users/sarthakagrawal/Desktop/stitch/test.mp4')
+stitcher = VideoStitcher(left_video_in_path='/Users/sarthakagrawal/Desktop/stitch/SamsungInput/test/1/3.mp4',
+                         right_video_in_path='/Users/sarthakagrawal/Desktop/stitch/SamsungInput/test/1/1.mp4',
+                         video_out_path='/Users/sarthakagrawal/Desktop/stitch/SamsungInput/test/2_1.mp4')
 
 stitcher.run()
