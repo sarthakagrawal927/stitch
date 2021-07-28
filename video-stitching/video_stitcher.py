@@ -25,6 +25,7 @@ class VideoStitcher:
 
         # If the saved homography matrix is None, then we need to apply keypoint matching to construct it
         if self.saved_homo_matrix is None:
+            print("here")
             # Detect keypoints and extract
             (keypoints_a, features_a) = self.detect_and_extract(image_a)
             (keypoints_b, features_b) = self.detect_and_extract(image_b)

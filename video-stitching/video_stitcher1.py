@@ -50,6 +50,12 @@ class VideoStitcher:
 
             # print(left.shape[0], left.shape[1])
             # print(right.shape[0], right.shape[1])
+            left = cv2.rotate(left, cv2.ROTATE_90_CLOCKWISE)
+
+            right = cv2.rotate(right, cv2.ROTATE_90_CLOCKWISE)
+
+            cv2.imshow("image1",left)
+            cv2.imshow("image2",right)
 
             images = [left, right]
 
@@ -100,8 +106,8 @@ class VideoStitcher:
 
 
 # Example call to 'VideoStitcher'
-stitcher = VideoStitcher(left_video_in_path='/Users/sarthakagrawal/Desktop/stitch/SamsungInput/Device1/20210625_121122.mp4',
-                         right_video_in_path='/Users/sarthakagrawal/Desktop/stitch/SamsungInput/Device2/20210625_121119.mp4',
-                         video_out_path='/Users/sarthakagrawal/Desktop/stitch/test.mp4')
+stitcher = VideoStitcher(left_video_in_path='/Users/sarthakagrawal/Desktop/stitch/SamsungInput/test/3/2.mp4',
+                         right_video_in_path='/Users/sarthakagrawal/Desktop/stitch/SamsungInput/test/3/4.mp4',
+                         video_out_path='/Users/sarthakagrawal/Desktop/stitch/SamsungInput/test/3_1.mp4')
 
 stitcher.run()

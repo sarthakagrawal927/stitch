@@ -21,6 +21,12 @@ class VideoStitcher:
     def stitch(self, images, ratio=0.75, reproj_thresh=100.0):
         # Unpack the images
         (image_b, image_a) = images
+        # image_a = cv2.rotate(image_a, cv2.ROTATE_90_CLOCKWISE)
+        # image_b = cv2.rotate(image_b, cv2.ROTATE_90_CLOCKWISE)
+
+        cv2.imshow("image1",image_a)
+        cv2.imshow("image2",image_b)
+
 
         # image_a = cv2.cvtColor(image_a, cv2.COLOR_BGR2RGB)
         # image_b = cv2.cvtColor(image_b, cv2.COLOR_BGR2RGB)
@@ -37,11 +43,16 @@ class VideoStitcher:
             # If the match is None, then there aren't enough matched keypoints to create a panorama
             if matched_keypoints is None:
                 return None
+            visual=self.draw_matches(image_b, image_a, keypoints_a, keypoints_b, matched_keypoints[0], matched_keypoints[2])
 
+            cv2.imwrite("matching.png",imutils.resize(visual, width=1000))
             # Save the homography matrix
             self.saved_homo_matrix = matched_keypoints[1]
 
         # Apply a perspective transform to stitch the images together using the saved homography matrix
+        # print(image_a.shape)
+        # print(image_b.shape)
+
         output_shape = (image_a.shape[1] + image_b.shape[1], image_a.shape[0])
 
         result = cv2.warpPerspective(
@@ -127,6 +138,7 @@ class VideoStitcher:
         n_frames = min(int(left_video.get(cv2.CAP_PROP_FRAME_COUNT)),
                        int(right_video.get(cv2.CAP_PROP_FRAME_COUNT)))
         fps = int(left_video.get(cv2.CAP_PROP_FPS))
+        print(n_frames)
         print(fps)
         frames = []
 
@@ -148,7 +160,7 @@ class VideoStitcher:
                 stitched_frame = imutils.resize(
                     stitched_frame, width=self.video_out_width)
 
-                frames.append(stitched_frame)
+                frames.append(cv2.rotate(stitched_frame, cv2.ROTATE_90_CLOCKWISE))
 
                 if self.display:
                     cv2.imshow("Result", stitched_frame)
@@ -176,8 +188,8 @@ class VideoStitcher:
         print('[INFO]: {} saved'.format(self.video_out_path.split('/')[-1]))
 
 
-stitcher = VideoStitcher(left_video_in_path='/Users/sarthakagrawal/Desktop/stitch/gui/inputs/2_1.mp4',
-                         right_video_in_path='/Users/sarthakagrawal/Desktop/stitch/gui/inputs/2_2.mp4',
-                         video_out_path='/Users/sarthakagrawal/Desktop/stitch/gui/outputs/2_1.mp4')
+stitcher = VideoStitcher(left_video_in_path='/Users/sarthakagrawal/Desktop/stitch/SamsungInput/test/poster/12.mp4',
+                         right_video_in_path='/Users/sarthakagrawal/Desktop/stitch/SamsungInput/test/poster/34.mp4',
+                         video_out_path='/Users/sarthakagrawal/Desktop/stitch/SamsungInput/test/poster/1234.mp4')
 
 stitcher.run()

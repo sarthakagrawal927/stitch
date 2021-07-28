@@ -21,6 +21,11 @@ class VideoStitcher:
     def stitch(self, images, ratio=0.75, reproj_thresh=100.0):
         # Unpack the images
         (image_a, image_b) = images
+        image_a = cv2.rotate(image_a, cv2.ROTATE_90_CLOCKWISE)
+        image_b = cv2.rotate(image_b, cv2.ROTATE_90_CLOCKWISE)
+
+        cv2.imshow("image1",image_a)
+        cv2.imshow("image2",image_b)
 
         # image_a = cv2.cvtColor(image_a, cv2.COLOR_BGR2RGB)
         # image_b = cv2.cvtColor(image_b, cv2.COLOR_BGR2RGB)
@@ -97,7 +102,7 @@ class VideoStitcher:
                 matches.append((raw_match[0].trainIdx, raw_match[0].queryIdx))
 
         # Computing a homography requires at least 4 matches
-        if len(matches) > 100:
+        if len(matches) > 10:
             # Construct the two sets of points
             points_a = np.float32([keypoints_a[i] for (_, i) in matches])
             points_b = np.float32([keypoints_b[i] for (i, _) in matches])
@@ -204,8 +209,8 @@ class VideoStitcher:
         print('[INFO]: {} saved'.format(self.video_out_path.split('/')[-1]))
 
 
-stitcher = VideoStitcher(left_video_in_path='/Users/sarthakagrawal/Desktop/stitch/SamsungInput/test/5/3.mp4',
-                         right_video_in_path='/Users/sarthakagrawal/Desktop/stitch/SamsungInput/test/5/2.mp4',
-                         video_out_path='/Users/sarthakagrawal/Desktop/stitch/SamsungInput/test/5_1.mp4')
+stitcher = VideoStitcher(left_video_in_path='/Users/sarthakagrawal/Desktop/stitch/SamsungInput/test/2/2.mp4',
+                         right_video_in_path='/Users/sarthakagrawal/Desktop/stitch/SamsungInput/test/2/3.mp4',
+                         video_out_path='/Users/sarthakagrawal/Desktop/stitch/SamsungInput/test/2_1.mp4')
 
 stitcher.run()
