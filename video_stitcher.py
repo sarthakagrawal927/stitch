@@ -7,7 +7,7 @@ import tqdm
 import os
 
 class VideoStitcher:
-    def __init__(self, left_video_in_path, right_video_in_path, video_out_path, video_out_width=500, display=False):
+    def __init__(self, left_video_in_path, right_video_in_path, video_out_path, video_out_width=1200, display=True):
         # Initialize arguments
         self.left_video_in_path = left_video_in_path
         self.right_video_in_path = right_video_in_path
@@ -58,7 +58,7 @@ class VideoStitcher:
         # Detect and extract features from the image (DoG keypoint detector and SIFT feature extractor)
         descriptor = cv2.xfeatures2d.SIFT_create()
         (keypoints, features) = descriptor.detectAndCompute(image, None)
-        
+
         # #SURF
         # gray_img = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         # surf = cv2.SURF_create()
@@ -72,7 +72,7 @@ class VideoStitcher:
         # # BRISK - extract features
         # br = cv2.BRISK_create();
         # keypoints, features = br.compute(image,  kp)
-        
+
         #ORB
         # gray_img = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         # orb = cv2.ORB_create(nfeatures=2000)
@@ -155,8 +155,7 @@ class VideoStitcher:
             # Grab the frames from their respective video streams
             ok, left = left_video.read()
             _, right = right_video.read()
-            
-            
+
             if ok and _ :
                 # Stitch the frames together to form the panorama
                 stitched_frame = self.stitch([left, right])
@@ -171,13 +170,12 @@ class VideoStitcher:
                     stitched_frame, width=self.video_out_width)
 
                 #frames.append(stitched_frame)
-        
                 if i == 0 :
                     height, width, layers = stitched_frame.shape
                     clip = cv2.VideoWriter(self.video_out_path, cv2.VideoWriter_fourcc(*'avc1'),
                                     30, (width, height))
                     i=1
-                
+
                 clip.write(stitched_frame)
 
                 if self.display:
@@ -206,8 +204,8 @@ class VideoStitcher:
         print('[INFO]: {} saved'.format(self.video_out_path.split('/')[-1]))
 
 
-stitcher = VideoStitcher(left_video_in_path='/Users/sarthakagrawal/Desktop/stitch/SamsungInput/test/1/3.mp4',
-                         right_video_in_path='/Users/sarthakagrawal/Desktop/stitch/SamsungInput/test/1/1.mp4',
-                         video_out_path='/Users/sarthakagrawal/Desktop/stitch/SamsungInput/test/2_1.mp4')
+stitcher = VideoStitcher(left_video_in_path='/Users/sarthakagrawal/Desktop/stitch/SamsungInput/test/5/3.mp4',
+                         right_video_in_path='/Users/sarthakagrawal/Desktop/stitch/SamsungInput/test/5/2.mp4',
+                         video_out_path='/Users/sarthakagrawal/Desktop/stitch/SamsungInput/test/5_1.mp4')
 
 stitcher.run()

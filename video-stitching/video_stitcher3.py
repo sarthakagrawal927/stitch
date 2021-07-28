@@ -7,7 +7,7 @@ import tqdm
 import os
 
 class VideoStitcher:
-    def __init__(self, left_video_in_path, right_video_in_path, video_out_path, video_out_width=800, display=True):
+    def __init__(self, left_video_in_path, right_video_in_path, video_out_path, video_out_width=1200, display=True):
         # Initialize arguments
         self.left_video_in_path = left_video_in_path
         self.right_video_in_path = right_video_in_path
@@ -77,7 +77,7 @@ class VideoStitcher:
                 matches.append((raw_match[0].trainIdx, raw_match[0].queryIdx))
 
         # Computing a homography requires at least 4 matches
-        if len(matches) > 500:
+        if len(matches) > 5:
             # Construct the two sets of points
             points_a = np.float32([keypoints_a[i] for (_, i) in matches])
             points_b = np.float32([keypoints_b[i] for (i, _) in matches])
@@ -167,7 +167,7 @@ class VideoStitcher:
         height, width, layers = frames[0].shape
 
         clip = cv2.VideoWriter(self.video_out_path, cv2.VideoWriter_fourcc(*'avc1'),
-                               30, (height,width))
+                               fps, (width,height))
 
         for frame in frames:
             clip.write(frame)
@@ -176,8 +176,8 @@ class VideoStitcher:
         print('[INFO]: {} saved'.format(self.video_out_path.split('/')[-1]))
 
 
-stitcher = VideoStitcher(left_video_in_path='/Users/sarthakagrawal/Desktop/stitch/SamsungInput/test/1/3.mp4',
-                         right_video_in_path='/Users/sarthakagrawal/Desktop/stitch/SamsungInput/test/1/1.mp4',
+stitcher = VideoStitcher(left_video_in_path='/Users/sarthakagrawal/Desktop/stitch/SamsungInput/test/2/1.mp4',
+                         right_video_in_path='/Users/sarthakagrawal/Desktop/stitch/SamsungInput/test/2/2.mp4',
                          video_out_path='/Users/sarthakagrawal/Desktop/stitch/SamsungInput/test/2_1.mp4')
 
 stitcher.run()
