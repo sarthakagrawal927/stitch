@@ -176,8 +176,8 @@ class VideoStitcher:
         print('[INFO]: {} saved'.format(self.video_out_path.split('/')[-1]))
 
 
-stitcher = VideoStitcher(left_video_in_path='/Users/sarthakagrawal/Desktop/stitch/SamsungInput/test/2/1.mp4',
-                         right_video_in_path='/Users/sarthakagrawal/Desktop/stitch/SamsungInput/test/2/2.mp4',
-                         video_out_path='/Users/sarthakagrawal/Desktop/stitch/SamsungInput/test/2_1.mp4')
+stitcher = VideoStitcher(left_video_in_path='/Users/sarthakagrawal/Desktop/stitch/gui/inputs/2_1.mp4',
+                         right_video_in_path='/Users/sarthakagrawal/Desktop/stitch/gui/inputs/2_2.mp4',
+                         video_out_path='/Users/sarthakagrawal/Desktop/stitch/gui/outputs/2_1.mp4')
 
 stitcher.run()
