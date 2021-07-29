@@ -21,8 +21,8 @@ class VideoStitcher:
     def stitch(self, images, ratio=0.75, reproj_thresh=100.0):
         # Unpack the images
         (image_b, image_a) = images
-        # image_a = cv2.rotate(image_a, cv2.ROTATE_90_CLOCKWISE)
-        # image_b = cv2.rotate(image_b, cv2.ROTATE_90_CLOCKWISE)
+        image_a = cv2.rotate(image_a, cv2.ROTATE_90_CLOCKWISE)
+        image_b = cv2.rotate(image_b, cv2.ROTATE_90_CLOCKWISE)
 
         cv2.imshow("image1",image_a)
         cv2.imshow("image2",image_b)
@@ -188,8 +188,8 @@ class VideoStitcher:
         print('[INFO]: {} saved'.format(self.video_out_path.split('/')[-1]))
 
 
-stitcher = VideoStitcher(left_video_in_path='/Users/sarthakagrawal/Desktop/stitch/SamsungInput/test/poster/12.mp4',
-                         right_video_in_path='/Users/sarthakagrawal/Desktop/stitch/SamsungInput/test/poster/34.mp4',
-                         video_out_path='/Users/sarthakagrawal/Desktop/stitch/SamsungInput/test/poster/1234.mp4')
+stitcher = VideoStitcher(left_video_in_path='/Users/sarthakagrawal/Desktop/stitch/SamsungInput/test/poster/1.mp4',
+                         right_video_in_path='/Users/sarthakagrawal/Desktop/stitch/SamsungInput/test/poster/2.mp4',
+                         video_out_path='/Users/sarthakagrawal/Desktop/stitch/SamsungInput/test/poster/12.mp4')
 
 stitcher.run()
