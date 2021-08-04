@@ -8,10 +8,11 @@ import os
 
 minMatches = 50
 currentFrameShow = False
-needLeftClockWiseRotation = False
-needRightClockWiseRotation = False
+needLeftClockWiseRotation = True
+needRightClockWiseRotation = True
 showFeatureMatching = True
 alwaysComputeHomography = False
+trimNeeded = True
 
 def trim(frame):
     #crop top
@@ -159,7 +160,7 @@ class VideoStitcher:
 
         # Get information about the videos
         n_frames = min(int(left_video.get(cv2.CAP_PROP_FRAME_COUNT)),
-                       int(right_video.get(cv2.CAP_PROP_FRAME_COUNT))) 
+                       int(right_video.get(cv2.CAP_PROP_FRAME_COUNT))) - 2
         fps = int(left_video.get(cv2.CAP_PROP_FPS))
         print(n_frames)
         print(fps)
@@ -185,8 +186,9 @@ class VideoStitcher:
 
                 # if needClockWiseRotation is True:
                 #     stitched_frame = cv2.rotate(stitched_frame, cv2.ROTATE_90_CLOCKWISE)
+                if trimNeeded is True:
+                    stitched_frame = trim(stitched_frame)
 
-                stitched_frame = trim(stitched_frame)
                 frames.append(stitched_frame)
 
                 if currentFrameShow:
@@ -215,8 +217,8 @@ class VideoStitcher:
         print('[INFO]: {} saved'.format(self.video_out_path.split('/')[-1]))
 
 
-stitcher = VideoStitcher(left_video_in_path='/Users/sarthakagrawal/Desktop/stitch/SamsungInput/test/poster/3.mp4',
-                         right_video_in_path='/Users/sarthakagrawal/Desktop/stitch/SamsungInput/test/poster/4.mp4',
-                         video_out_path='/Users/sarthakagrawal/Desktop/stitch/SamsungInput/test/poster/34.mp4')
+stitcher = VideoStitcher(left_video_in_path='/Users/sarthakagrawal/Desktop/stitch/SamsungInput/test/multiPoster/1.mp4',
+                         right_video_in_path='/Users/sarthakagrawal/Desktop/stitch/SamsungInput/test/multiPoster/2.mp4',
+                         video_out_path='/Users/sarthakagrawal/Desktop/stitch/SamsungInput/test/multiPoster/12.mp4')
 
 stitcher.run()
