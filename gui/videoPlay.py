@@ -1,7 +1,7 @@
 from tkinter import *
 from tkvideo import tkvideo
 from tkinter import filedialog,messagebox
-from video_stitcher4 import *
+from main import *
 
 def playVideo(path , labelName, labelSize):
     player = tkvideo(path, labelName, loop = 1, size = labelSize)

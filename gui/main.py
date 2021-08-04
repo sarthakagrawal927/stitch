@@ -8,10 +8,8 @@ import os
 
 minMatches = 50
 currentFrameShow = False
-needLeftClockWiseRotation = False
-needRightClockWiseRotation = False
-showFeatureMatching = True
-alwaysComputeHomography = False
+needClockWiseRotation = False
+showFeatureMatching = False
 
 def trim(frame):
     #crop top
@@ -43,19 +41,21 @@ class VideoStitcher:
         # Unpack the images
         (image_b, image_a) = images
 
-        if needLeftClockWiseRotation is True:
+        if needClockWiseRotation is True:
             image_a = cv2.rotate(image_a, cv2.ROTATE_90_CLOCKWISE)
-
-        if needRightClockWiseRotation is True:
             image_b = cv2.rotate(image_b, cv2.ROTATE_90_CLOCKWISE)
 
-        if currentFrameShow is True:
-            cv2.imshow("image1",image_a)
-            cv2.imshow("image2",image_b)
-
+        cv2.imshow("image1",image_a)
+        cv2.imshow("image2",image_b)
         output_shape = ((int)((image_a.shape[1] + image_b.shape[1])/1.0), max(image_a.shape[0], image_b.shape[0]))
 
-        if self.saved_homo_matrix is None or alwaysComputeHomography is True:
+
+        # image_a = cv2.cvtColor(image_a, cv2.COLOR_BGR2RGB)
+        # image_b = cv2.cvtColor(image_b, cv2.COLOR_BGR2RGB)
+        # If the saved homography matrix is None, then we need to apply keypoint matching to construct it
+
+        if self.saved_homo_matrix is None:
+        # if None is None:
 
             # Detect keypoints and extract
             (keypoints_a, features_a) = self.detect_and_extract(image_a)
@@ -78,6 +78,9 @@ class VideoStitcher:
 
 
         # Apply a perspective transform to stitch the images together using the saved homography matrix
+        # print(image_a.shape)
+        # print(image_b.shape)
+
         result = cv2.warpPerspective(
             image_a, self.saved_homo_matrix, output_shape)
 
@@ -215,8 +218,12 @@ class VideoStitcher:
         print('[INFO]: {} saved'.format(self.video_out_path.split('/')[-1]))
 
 
-stitcher = VideoStitcher(left_video_in_path='/Users/sarthakagrawal/Desktop/stitch/SamsungInput/test/poster/3.mp4',
-                         right_video_in_path='/Users/sarthakagrawal/Desktop/stitch/SamsungInput/test/poster/4.mp4',
-                         video_out_path='/Users/sarthakagrawal/Desktop/stitch/SamsungInput/test/poster/34.mp4')
-
-stitcher.run()
+def main(video1,video2):
+    videoOutPath = video1.split("/")[-1].split("_")[0] + ".mp4"
+    stitcher = VideoStitcher(left_video_in_path=video1,
+                            right_video_in_path=video2,
+                            video_out_path=videoOutPath)
+    stitcher.run()
+    ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
+    returnPath = os.path.join(ROOT_DIR, videoOutPath)
+    return  returnPath
