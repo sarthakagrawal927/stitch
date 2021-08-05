@@ -1,5 +1,3 @@
-# Github Code with color coding fixed
-
 import cv2
 import numpy as np
 import imutils
@@ -7,9 +5,9 @@ import tqdm
 import os
 
 minMatches = 50
-currentFrameShow = False
-needLeftClockWiseRotation = True
-needRightClockWiseRotation = True
+currentFrameShow = True
+needLeftClockWiseRotation = False
+needRightClockWiseRotation = False
 showFeatureMatching = True
 alwaysComputeHomography = False
 trimNeeded = True
@@ -217,8 +215,8 @@ class VideoStitcher:
         print('[INFO]: {} saved'.format(self.video_out_path.split('/')[-1]))
 
 
-stitcher = VideoStitcher(left_video_in_path='/Users/sarthakagrawal/Desktop/stitch/SamsungInput/test/multiPoster/1.mp4',
-                         right_video_in_path='/Users/sarthakagrawal/Desktop/stitch/SamsungInput/test/multiPoster/2.mp4',
-                         video_out_path='/Users/sarthakagrawal/Desktop/stitch/SamsungInput/test/multiPoster/12.mp4')
+stitcher = VideoStitcher(left_video_in_path='/Users/sarthakagrawal/Desktop/stitch/Inputs/youtube2.mp4',
+                         right_video_in_path='/Users/sarthakagrawal/Desktop/stitch/Inputs/youtube1.mp4',
+                         video_out_path='/Users/sarthakagrawal/Desktop/stitch/Inputs/youtube12.mp4')
 
 stitcher.run()
