@@ -19,13 +19,13 @@ def trim(frame):
     if not np.sum(frame[0]):
         return trim(frame[1:])
     #crop bottom
-    elif not np.sum(frame[-1]):
+    if not np.sum(frame[-1]):
         return trim(frame[:-2])
     #crop left
-    elif not np.sum(frame[:,0]):
+    if not np.sum(frame[:,0]):
         return trim(frame[:,1:])
     #crop right
-    elif not np.sum(frame[:,-1]):
+    if not np.sum(frame[:,-1]):
         return trim(frame[:,:-2])
     return frame
 
