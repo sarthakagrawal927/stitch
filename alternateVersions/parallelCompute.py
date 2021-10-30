@@ -4,10 +4,11 @@ import imutils
 import tqdm
 import os
 import time
+from multiprocessing import Pool
 
-minMatches = 15
-currentFrameShow = True
-needLeftClockWiseRotation = False
+minMatches = 10
+currentFrameShow = False
+needLeftClockWiseRotation = True
 needRightClockWiseRotation = False
 showFeatureMatching = True
 alwaysComputeHomography = False
@@ -19,13 +20,13 @@ def trim(frame):
     if not np.sum(frame[0]):
         return trim(frame[1:])
     #crop bottom
-    if not np.sum(frame[-1]):
+    elif not np.sum(frame[-1]):
         return trim(frame[:-2])
     #crop left
-    if not np.sum(frame[:,0]):
+    elif not np.sum(frame[:,0]):
         return trim(frame[:,1:])
     #crop right
-    if not np.sum(frame[:,-1]):
+    elif not np.sum(frame[:,-1]):
         return trim(frame[:,:-2])
     return frame
 
@@ -180,7 +181,11 @@ class VideoStitcher:
 
             if ok:
                 # Stitch the frames together to form the panorama
+                # pool = Pool(6)
+
                 stitched_frame = self.stitch([left, right])
+
+                # stitched_frame = pool.map(self.stitch, [left, right])
 
                 # No homography could not be computed
                 if stitched_frame is None:
@@ -224,19 +229,29 @@ class VideoStitcher:
         print('[INFO]: {} saved'.format(self.video_out_path.split('/')[-1]))
 
 
-stitcher1 = VideoStitcher(left_video_in_path='/Users/sarthakagrawal/Desktop/stitch/Inputs/Youtube/3_4v/LL.mp4',
-                         right_video_in_path='/Users/sarthakagrawal/Desktop/stitch/Inputs/Youtube/3_4v/LR.mp4',
-                         video_out_path='/Users/sarthakagrawal/Desktop/stitch/Inputs/Youtube/3_4v/L.mp4')
-stitcher1.run()
 
 
-# stitcher2 = VideoStitcher(left_video_in_path='/Users/sarthakagrawal/Desktop/stitch/Inputs/Youtube/3_4v/RR.mp4',
-#                          right_video_in_path='/Users/sarthakagrawal/Desktop/stitch/Inputs/Youtube/3_4v/RL.mp4',
-#                          video_out_path='/Users/sarthakagrawal/Desktop/stitch/Inputs/Youtube/3_4v/R.mp4')
-# stitcher2.run()
 
 
-# stitcher3 = VideoStitcher(left_video_in_path='/Users/sarthakagrawal/Desktop/stitch/Inputs/Youtube/3_4v/R.mp4',
-#                          right_video_in_path='/Users/sarthakagrawal/Desktop/stitch/Inputs/Youtube/3_4v/L.mp4',
-#                          video_out_path='/Users/sarthakagrawal/Desktop/stitch/Inputs/Youtube/3_4v/out.mp4')
+# stitcher1.run()
+if __name__ == "__main__":
+    stitcher1 = VideoStitcher(left_video_in_path='/Users/sarthakagrawal/Desktop/stitch/Inputs/SamsungInput/multiPoster/1.mp4',
+                            right_video_in_path='/Users/sarthakagrawal/Desktop/stitch/Inputs/SamsungInput/multiPoster/2.mp4',
+                            video_out_path='/Users/sarthakagrawal/Desktop/stitch/Inputs/SamsungInput/multiPoster/12.mp4')
+    pool = Pool(6)
+    pool.map(stitcher1.run())
+    stitcher2 = VideoStitcher(left_video_in_path='/Users/sarthakagrawal/Desktop/stitch/Inputs/SamsungInput/multiPoster/12.mp4',
+                         right_video_in_path='/Users/sarthakagrawal/Desktop/stitch/Inputs/SamsungInput/multiPoster/3.mp4',
+                         video_out_path='/Users/sarthakagrawal/Desktop/stitch/Inputs/SamsungInput/multiPoster/123.mp4')
+
+    pool.map(stitcher2.run())
+# stitcher1.run()
+
+
+
+
+
+# stitcher3 = VideoStitcher(left_video_in_path='/Users/sarthakagrawal/Desktop/stitch/Inputs/SamsungInput/multiPoster/123.mp4',
+#                          right_video_in_path='/Users/sarthakagrawal/Desktop/stitch/Inputs/SamsungInput/multiPoster/4.mp4',
+#                          video_out_path='/Users/sarthakagrawal/Desktop/stitch/Inputs/SamsungInput/multiPoster/1234.mp4')
 # stitcher3.run()

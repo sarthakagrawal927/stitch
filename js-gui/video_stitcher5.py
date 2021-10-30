@@ -1,5 +1,3 @@
-# 3 + modulation
-
 import cv2
 import numpy as np
 import imutils

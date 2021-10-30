@@ -3,6 +3,9 @@ from tkvideo import tkvideo
 from tkinter import filedialog,messagebox
 from main import *
 
+import os
+os.environ["IMAGEIO_FFMPEG_EXE"] = "/Users/sarthakagrawal/Downloads/cv/opencv-4.5.0/3rdparty/ffmpeg"
+
 def playVideo(path , labelName, labelSize):
     player = tkvideo(path, labelName, loop = 1, size = labelSize)
     player.play()
