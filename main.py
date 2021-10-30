@@ -224,19 +224,17 @@ class VideoStitcher:
         print('[INFO]: {} saved'.format(self.video_out_path.split('/')[-1]))
 
 
-stitcher1 = VideoStitcher(left_video_in_path='/Users/sarthakagrawal/Desktop/stitch/Inputs/Youtube/3_4v/LL.mp4',
-                         right_video_in_path='/Users/sarthakagrawal/Desktop/stitch/Inputs/Youtube/3_4v/LR.mp4',
-                         video_out_path='/Users/sarthakagrawal/Desktop/stitch/Inputs/Youtube/3_4v/L.mp4')
-stitcher1.run()
+# stitcher1 = VideoStitcher(left_video_in_path='/Users/sarthakagrawal/Desktop/stitch/Inputs/Youtube/2_4v/LL.mp4',
+#                          right_video_in_path='/Users/sarthakagrawal/Desktop/stitch/Inputs/Youtube/2_4v/LR.mp4',
+#                          video_out_path='/Users/sarthakagrawal/Desktop/stitch/Inputs/Youtube/2_4v/L.mp4')
+# stitcher1.run()
 
-
-# stitcher2 = VideoStitcher(left_video_in_path='/Users/sarthakagrawal/Desktop/stitch/Inputs/Youtube/3_4v/RR.mp4',
-#                          right_video_in_path='/Users/sarthakagrawal/Desktop/stitch/Inputs/Youtube/3_4v/RL.mp4',
-#                          video_out_path='/Users/sarthakagrawal/Desktop/stitch/Inputs/Youtube/3_4v/R.mp4')
+# stitcher2 = VideoStitcher(left_video_in_path='/Users/sarthakagrawal/Desktop/stitch/Inputs/Youtube/2_4v/RL.mp4',
+#                          right_video_in_path='/Users/sarthakagrawal/Desktop/stitch/Inputs/Youtube/2_4v/RR.mp4',
+#                          video_out_path='/Users/sarthakagrawal/Desktop/stitch/Inputs/Youtube/2_4v/R.mp4')
 # stitcher2.run()
 
-
-# stitcher3 = VideoStitcher(left_video_in_path='/Users/sarthakagrawal/Desktop/stitch/Inputs/Youtube/3_4v/R.mp4',
-#                          right_video_in_path='/Users/sarthakagrawal/Desktop/stitch/Inputs/Youtube/3_4v/L.mp4',
-#                          video_out_path='/Users/sarthakagrawal/Desktop/stitch/Inputs/Youtube/3_4v/out.mp4')
-# stitcher3.run()
+stitcher3 = VideoStitcher(left_video_in_path='/Users/sarthakagrawal/Desktop/stitch/Inputs/Youtube/2_4v/L.mp4',
+                         right_video_in_path='/Users/sarthakagrawal/Desktop/stitch/Inputs/Youtube/2_4v/R.mp4',
+                         video_out_path='/Users/sarthakagrawal/Desktop/stitch/Inputs/Youtube/2_4v/out.mp4')
+stitcher3.run()
