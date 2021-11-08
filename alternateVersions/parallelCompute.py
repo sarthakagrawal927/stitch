@@ -4,34 +4,38 @@ import imutils
 import tqdm
 import os
 import time
-from multiprocessing import Pool
+import multiprocessing
 
-minMatches = 10
-currentFrameShow = False
-needLeftClockWiseRotation = True
+minMatches = 15
+currentFrameShow = True
+needLeftClockWiseRotation = False
 needRightClockWiseRotation = False
 showFeatureMatching = True
 alwaysComputeHomography = False
 trimNeeded = True
 slowDownForScreenShot = False
 
+
 def trim(frame):
-    #crop top
+    # crop top
     if not np.sum(frame[0]):
         return trim(frame[1:])
-    #crop bottom
+    # crop bottom
     if not np.sum(frame[-1]):
         return trim(frame[:-2])
-    #crop left
-    if not np.sum(frame[:,0]):
-        return trim(frame[:,1:])
-    #crop right
-    if not np.sum(frame[:,-1]):
-        return trim(frame[:,:-2])
+    # crop left
+    if not np.sum(frame[:, 0]):
+        return trim(frame[:, 1:])
+    # crop right
+    if not np.sum(frame[:, -1]):
+        return trim(frame[:, :-2])
     return frame
 
-class VideoStitcher:
+
+class VideoStitcher(multiprocessing.Process):
     def __init__(self, left_video_in_path, right_video_in_path, video_out_path, video_out_width=800):
+        multiprocessing.Process.__init__(self)
+
         # Initialize arguments
         self.left_video_in_path = left_video_in_path
         self.right_video_in_path = right_video_in_path
@@ -52,10 +56,11 @@ class VideoStitcher:
             image_b = cv2.rotate(image_b, cv2.ROTATE_90_CLOCKWISE)
 
         if currentFrameShow is True:
-            cv2.imshow("image1",image_a)
-            cv2.imshow("image2",image_b)
+            cv2.imshow("image1", image_a)
+            cv2.imshow("image2", image_b)
 
-        output_shape = ((int)((image_a.shape[1] + image_b.shape[1])/1.0), max(image_a.shape[0], image_b.shape[0]))
+        output_shape = ((int)(
+            (image_a.shape[1] + image_b.shape[1])/1.0), max(image_a.shape[0], image_b.shape[0]))
 
         if self.saved_homo_matrix is None or alwaysComputeHomography is True:
 
@@ -72,12 +77,13 @@ class VideoStitcher:
                 return None
 
             if showFeatureMatching is True:
-                visual=self.draw_matches(image_b, image_a, keypoints_a, keypoints_b, matched_keypoints[0], matched_keypoints[2])
-                cv2.imwrite("matching.png",imutils.resize(visual, output_shape[1]))
+                visual = self.draw_matches(
+                    image_b, image_a, keypoints_a, keypoints_b, matched_keypoints[0], matched_keypoints[2])
+                cv2.imwrite("matching.png", imutils.resize(
+                    visual, output_shape[1]))
             # Save the homography matrix
             self.saved_homo_matrix = matched_keypoints[1]
             print(image_a.shape, image_b.shape, output_shape)
-
 
         # Apply a perspective transform to stitch the images together using the saved homography matrix
         result = cv2.warpPerspective(
@@ -181,11 +187,7 @@ class VideoStitcher:
 
             if ok:
                 # Stitch the frames together to form the panorama
-                # pool = Pool(6)
-
                 stitched_frame = self.stitch([left, right])
-
-                # stitched_frame = pool.map(self.stitch, [left, right])
 
                 # No homography could not be computed
                 if stitched_frame is None:
@@ -220,7 +222,7 @@ class VideoStitcher:
         height, width, layers = frames[0].shape
 
         clip = cv2.VideoWriter(self.video_out_path, cv2.VideoWriter_fourcc(*'avc1'),
-                               fps, (width,height))
+                               fps, (width, height))
 
         for frame in frames:
             clip.write(frame)
@@ -229,29 +231,39 @@ class VideoStitcher:
         print('[INFO]: {} saved'.format(self.video_out_path.split('/')[-1]))
 
 
+if __name__ == '__main__':
+    stitcher1 = VideoStitcher(left_video_in_path='/Users/sarthakagrawal/Desktop/stitch/Inputs/Youtube/1/L.mp4',
+                              right_video_in_path='/Users/sarthakagrawal/Desktop/stitch/Inputs/Youtube/1/R.mp4',
+                              video_out_path='/Users/sarthakagrawal/Desktop/stitch/Inputs/Youtube/1/LR.mp4')
 
+    stitcher2 = VideoStitcher(left_video_in_path='/Users/sarthakagrawal/Desktop/stitch/Inputs/Youtube/2/L.mp4',
+                              right_video_in_path='/Users/sarthakagrawal/Desktop/stitch/Inputs/Youtube/2/R.mp4',
+                              video_out_path='/Users/sarthakagrawal/Desktop/stitch/Inputs/Youtube/2/LR.mp4')
 
+    stitcher3 = VideoStitcher(left_video_in_path='/Users/sarthakagrawal/Desktop/stitch/Inputs/Youtube/3/L.mp4',
+                              right_video_in_path='/Users/sarthakagrawal/Desktop/stitch/Inputs/Youtube/3/R.mp4',
+                              video_out_path='/Users/sarthakagrawal/Desktop/stitch/Inputs/Youtube/3/LR.mp4')
 
+    stitcher4 = VideoStitcher(left_video_in_path='/Users/sarthakagrawal/Desktop/stitch/Inputs/Youtube/4/L.mp4',
+                              right_video_in_path='/Users/sarthakagrawal/Desktop/stitch/Inputs/Youtube/4/R.mp4',
+                              video_out_path='/Users/sarthakagrawal/Desktop/stitch/Inputs/Youtube/4/LR.mp4')
 
-# stitcher1.run()
-if __name__ == "__main__":
-    stitcher1 = VideoStitcher(left_video_in_path='/Users/sarthakagrawal/Desktop/stitch/Inputs/SamsungInput/multiPoster/1.mp4',
-                            right_video_in_path='/Users/sarthakagrawal/Desktop/stitch/Inputs/SamsungInput/multiPoster/2.mp4',
-                            video_out_path='/Users/sarthakagrawal/Desktop/stitch/Inputs/SamsungInput/multiPoster/12.mp4')
-    pool = Pool(6)
-    pool.map(stitcher1.run())
-    stitcher2 = VideoStitcher(left_video_in_path='/Users/sarthakagrawal/Desktop/stitch/Inputs/SamsungInput/multiPoster/12.mp4',
-                         right_video_in_path='/Users/sarthakagrawal/Desktop/stitch/Inputs/SamsungInput/multiPoster/3.mp4',
-                         video_out_path='/Users/sarthakagrawal/Desktop/stitch/Inputs/SamsungInput/multiPoster/123.mp4')
+    p1 = multiprocessing.Process(target=stitcher1.run)
+    p2 = multiprocessing.Process(target=stitcher2.run)
+    p3 = multiprocessing.Process(target=stitcher3.run)
+    p4 = multiprocessing.Process(target=stitcher4.run)
 
-    pool.map(stitcher2.run())
-# stitcher1.run()
+    p1.start()
+    p2.start()
+    p3.start()
+    p4.start()
 
+    p1.join()
+    p2.join()
+    p3.join()
+    p4.join()
 
-
-
-
-# stitcher3 = VideoStitcher(left_video_in_path='/Users/sarthakagrawal/Desktop/stitch/Inputs/SamsungInput/multiPoster/123.mp4',
-#                          right_video_in_path='/Users/sarthakagrawal/Desktop/stitch/Inputs/SamsungInput/multiPoster/4.mp4',
-#                          video_out_path='/Users/sarthakagrawal/Desktop/stitch/Inputs/SamsungInput/multiPoster/1234.mp4')
-# stitcher3.run()
+    # stitcher3 = VideoStitcher(left_video_in_path='/Users/sarthakagrawal/Desktop/stitch/Inputs/Youtube/4/L.mp4',
+    #                           right_video_in_path='/Users/sarthakagrawal/Desktop/stitch/Inputs/Youtube/4/R.mp4',
+    #                           video_out_path='/Users/sarthakagrawal/Desktop/stitch/Inputs/Youtube/4/LR.mp4')
+    # stitcher3.run()

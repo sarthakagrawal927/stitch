@@ -14,20 +14,22 @@ alwaysComputeHomography = False
 trimNeeded = True
 slowDownForScreenShot = False
 
+
 def trim(frame):
-    #crop top
+    # crop top
     if not np.sum(frame[0]):
         return trim(frame[1:])
-    #crop bottom
+    # crop bottom
     if not np.sum(frame[-1]):
         return trim(frame[:-2])
-    #crop left
-    if not np.sum(frame[:,0]):
-        return trim(frame[:,1:])
-    #crop right
-    if not np.sum(frame[:,-1]):
-        return trim(frame[:,:-2])
+    # crop left
+    if not np.sum(frame[:, 0]):
+        return trim(frame[:, 1:])
+    # crop right
+    if not np.sum(frame[:, -1]):
+        return trim(frame[:, :-2])
     return frame
+
 
 class VideoStitcher:
     def __init__(self, left_video_in_path, right_video_in_path, video_out_path, video_out_width=800):
@@ -51,10 +53,11 @@ class VideoStitcher:
             image_b = cv2.rotate(image_b, cv2.ROTATE_90_CLOCKWISE)
 
         if currentFrameShow is True:
-            cv2.imshow("image1",image_a)
-            cv2.imshow("image2",image_b)
+            cv2.imshow("image1", image_a)
+            cv2.imshow("image2", image_b)
 
-        output_shape = ((int)((image_a.shape[1] + image_b.shape[1])/1.0), max(image_a.shape[0], image_b.shape[0]))
+        output_shape = ((int)(
+            (image_a.shape[1] + image_b.shape[1])/1.0), max(image_a.shape[0], image_b.shape[0]))
 
         if self.saved_homo_matrix is None or alwaysComputeHomography is True:
 
@@ -71,12 +74,13 @@ class VideoStitcher:
                 return None
 
             if showFeatureMatching is True:
-                visual=self.draw_matches(image_b, image_a, keypoints_a, keypoints_b, matched_keypoints[0], matched_keypoints[2])
-                cv2.imwrite("matching.png",imutils.resize(visual, output_shape[1]))
+                visual = self.draw_matches(
+                    image_b, image_a, keypoints_a, keypoints_b, matched_keypoints[0], matched_keypoints[2])
+                cv2.imwrite("matching.png", imutils.resize(
+                    visual, output_shape[1]))
             # Save the homography matrix
             self.saved_homo_matrix = matched_keypoints[1]
             print(image_a.shape, image_b.shape, output_shape)
-
 
         # Apply a perspective transform to stitch the images together using the saved homography matrix
         result = cv2.warpPerspective(
@@ -215,7 +219,7 @@ class VideoStitcher:
         height, width, layers = frames[0].shape
 
         clip = cv2.VideoWriter(self.video_out_path, cv2.VideoWriter_fourcc(*'avc1'),
-                               fps, (width,height))
+                               fps, (width, height))
 
         for frame in frames:
             clip.write(frame)
@@ -234,7 +238,7 @@ class VideoStitcher:
 #                          video_out_path='/Users/sarthakagrawal/Desktop/stitch/Inputs/Youtube/2_4v/R.mp4')
 # stitcher2.run()
 
-stitcher3 = VideoStitcher(left_video_in_path='/Users/sarthakagrawal/Desktop/stitch/Inputs/Youtube/2_4v/L.mp4',
-                         right_video_in_path='/Users/sarthakagrawal/Desktop/stitch/Inputs/Youtube/2_4v/R.mp4',
-                         video_out_path='/Users/sarthakagrawal/Desktop/stitch/Inputs/Youtube/2_4v/out.mp4')
+stitcher3 = VideoStitcher(left_video_in_path='/Users/sarthakagrawal/Desktop/stitch/Inputs/Youtube/4/L.mp4',
+                          right_video_in_path='/Users/sarthakagrawal/Desktop/stitch/Inputs/Youtube/4/R.mp4',
+                          video_out_path='/Users/sarthakagrawal/Desktop/stitch/Inputs/Youtube/4/LR.mp4')
 stitcher3.run()
