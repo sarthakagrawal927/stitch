@@ -14,8 +14,8 @@ showFeatureMatching = True
 alwaysComputeHomography = False
 trimNeeded = True
 slowDownForScreenShot = False
-computeHomographyEveryThirtySeconds = True
-computeHomographyAfter = 1
+computeHomographyEveryNSeconds = True
+computeHomographyAfter = 30
 isFourFrame = False
 
 
@@ -54,13 +54,13 @@ class VideoStitcher(multiprocessing.Process):
         # Unpack the images
         (image_b, image_a) = images
 
-        if needLeftClockWiseRotation is True:
+        if needLeftClockWiseRotation:
             image_a = cv2.rotate(image_a, cv2.ROTATE_90_CLOCKWISE)
 
-        if needRightClockWiseRotation is True:
+        if needRightClockWiseRotation:
             image_b = cv2.rotate(image_b, cv2.ROTATE_90_CLOCKWISE)
 
-        if currentFrameShow is True:
+        if currentFrameShow:
             cv2.imshow("image1", image_a)
             cv2.imshow("image2", image_b)
 
@@ -69,7 +69,7 @@ class VideoStitcher(multiprocessing.Process):
 
         self.frameCount += 1
 
-        if self.saved_homo_matrix is None or (self.frameCount % computeHomographyAfter == 0 and computeHomographyEveryThirtySeconds is True):
+        if self.saved_homo_matrix is None or (self.frameCount % computeHomographyAfter == 0 and computeHomographyEveryNSeconds is True):
 
             # Detect keypoints and extract
             (keypoints_a, features_a) = self.detect_and_extract(image_a)
@@ -241,13 +241,13 @@ class VideoStitcher(multiprocessing.Process):
 
 if __name__ == '__main__':
     if isFourFrame:
-        stitcher1 = VideoStitcher(left_video_in_path='/Users/sarthakagrawal/Desktop/stitch/finalInputs/4Frame/3/LL.mp4',
-                                  right_video_in_path='/Users/sarthakagrawal/Desktop/stitch/finalInputs/4Frame/3/LR.mp4',
-                                  video_out_path='/Users/sarthakagrawal/Desktop/stitch/finalInputs/4Frame/3/L.mp4')
+        stitcher1 = VideoStitcher(left_video_in_path='/Users/sarthakagrawal/Desktop/stitch/finalInputs/4Frame/5/LL.mp4',
+                                  right_video_in_path='/Users/sarthakagrawal/Desktop/stitch/finalInputs/4Frame/5/LR.mp4',
+                                  video_out_path='/Users/sarthakagrawal/Desktop/stitch/finalInputs/4Frame/5/L.mp4')
 
-        stitcher2 = VideoStitcher(left_video_in_path='/Users/sarthakagrawal/Desktop/stitch/finalInputs/4Frame/3/RL.mp4',
-                                  right_video_in_path='/Users/sarthakagrawal/Desktop/stitch/finalInputs/4Frame/3/RR.mp4',
-                                  video_out_path='/Users/sarthakagrawal/Desktop/stitch/finalInputs/4Frame/3/R.mp4')
+        stitcher2 = VideoStitcher(left_video_in_path='/Users/sarthakagrawal/Desktop/stitch/finalInputs/4Frame/5/RL.mp4',
+                                  right_video_in_path='/Users/sarthakagrawal/Desktop/stitch/finalInputs/4Frame/5/RR.mp4',
+                                  video_out_path='/Users/sarthakagrawal/Desktop/stitch/finalInputs/4Frame/5/R.mp4')
 
         p1 = multiprocessing.Process(target=stitcher1.run)
         p2 = multiprocessing.Process(target=stitcher2.run)
@@ -257,7 +257,7 @@ if __name__ == '__main__':
         p1.join()
         p2.join()
 
-    stitcher3 = VideoStitcher(left_video_in_path='/Users/sarthakagrawal/Desktop/stitch/finalInputs/2Frame/4/L.mp4',
-                              right_video_in_path='/Users/sarthakagrawal/Desktop/stitch/finalInputs/2Frame/4/R.mp4',
-                              video_out_path='/Users/sarthakagrawal/Desktop/stitch/finalInputs/2Frame/4/LR.mp4')
+    stitcher3 = VideoStitcher(left_video_in_path='/Users/sarthakagrawal/Desktop/stitch/finalInputs/2Frame/7/L.mp4',
+                              right_video_in_path='/Users/sarthakagrawal/Desktop/stitch/finalInputs/2Frame/7/R.mp4',
+                              video_out_path='/Users/sarthakagrawal/Desktop/stitch/finalInputs/2Frame/7/out.mp4')
     stitcher3.run()
