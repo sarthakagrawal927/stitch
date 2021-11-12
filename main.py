@@ -4,8 +4,9 @@ import imutils
 import tqdm
 import os
 import time
+import multiprocessing
 
-minMatches = 15
+minMatches = 30
 currentFrameShow = True
 needLeftClockWiseRotation = False
 needRightClockWiseRotation = False
@@ -13,6 +14,9 @@ showFeatureMatching = True
 alwaysComputeHomography = False
 trimNeeded = True
 slowDownForScreenShot = False
+computeHomographyEveryNSeconds = False
+computeHomographyAfter = 10
+isFourFrame = True
 
 
 def trim(frame):
@@ -31,35 +35,42 @@ def trim(frame):
     return frame
 
 
-class VideoStitcher:
-    def __init__(self, left_video_in_path, right_video_in_path, video_out_path, video_out_width=800):
+class VideoStitcher(multiprocessing.Process):
+
+    def __init__(self, left_video_in_path, right_video_in_path, video_out_path, video_out_width=800, frameCount=0):
+        multiprocessing.Process.__init__(self)
+
         # Initialize arguments
         self.left_video_in_path = left_video_in_path
         self.right_video_in_path = right_video_in_path
         self.video_out_path = video_out_path
         self.video_out_width = video_out_width
+        self.frameCount = frameCount
 
         # Initialize the saved homography matrix
         self.saved_homo_matrix = None
+        self.finalSize = None
 
     def stitch(self, images, ratio=0.75, reproj_thresh=100.0):
         # Unpack the images
         (image_b, image_a) = images
 
-        if needLeftClockWiseRotation is True:
+        if needLeftClockWiseRotation:
             image_a = cv2.rotate(image_a, cv2.ROTATE_90_CLOCKWISE)
 
-        if needRightClockWiseRotation is True:
+        if needRightClockWiseRotation:
             image_b = cv2.rotate(image_b, cv2.ROTATE_90_CLOCKWISE)
 
-        if currentFrameShow is True:
+        if currentFrameShow:
             cv2.imshow("image1", image_a)
             cv2.imshow("image2", image_b)
 
         output_shape = ((int)(
             (image_a.shape[1] + image_b.shape[1])/1.0), max(image_a.shape[0], image_b.shape[0]))
 
-        if self.saved_homo_matrix is None or alwaysComputeHomography is True:
+        self.frameCount += 1
+
+        if self.saved_homo_matrix is None or (self.frameCount % computeHomographyAfter == 0 and computeHomographyEveryNSeconds is True):
 
             # Detect keypoints and extract
             (keypoints_a, features_a) = self.detect_and_extract(image_a)
@@ -80,9 +91,9 @@ class VideoStitcher:
                     visual, output_shape[1]))
             # Save the homography matrix
             self.saved_homo_matrix = matched_keypoints[1]
-            print(image_a.shape, image_b.shape, output_shape)
+            # print(image_a.shape, image_b.shape, output_shape)
 
-        # Apply a perspective transform to stitch the images together using the saved homography matrix
+            # Apply a perspective transform to stitch the images together using the saved homography matrix
         result = cv2.warpPerspective(
             image_a, self.saved_homo_matrix, output_shape)
 
@@ -164,7 +175,8 @@ class VideoStitcher:
 
         # Get information about the videos
         n_frames = min(int(left_video.get(cv2.CAP_PROP_FRAME_COUNT)),
-                       int(right_video.get(cv2.CAP_PROP_FRAME_COUNT))) - 2
+                       int(right_video.get(cv2.CAP_PROP_FRAME_COUNT)))
+
         fps = int(left_video.get(cv2.CAP_PROP_FPS))
         print(n_frames)
         print(fps)
@@ -173,9 +185,6 @@ class VideoStitcher:
         for _ in tqdm.tqdm(np.arange(n_frames)):
             # Grab the frames from their respective video streams
             ok, left = left_video.read()
-
-            # # try decreasing intensity
-            # left = np.array(left * 0.7, dtype = left.dtype)
 
             _, right = right_video.read()
 
@@ -191,14 +200,14 @@ class VideoStitcher:
                     print("[INFO]: Homography could not be computed!")
                     break
 
-                # Add frame to video
-                # stitched_frame = imutils.resize(
-                #     stitched_frame, width=stitched_frame.shape[1])
-
-                # if needClockWiseRotation is True:
-                #     stitched_frame = cv2.rotate(stitched_frame, cv2.ROTATE_90_CLOCKWISE)
                 if trimNeeded is True:
                     stitched_frame = trim(stitched_frame)
+
+                if self.finalSize is None:
+                    self.finalSize = stitched_frame.shape
+                elif computeHomographyEveryNSeconds:
+                    stitched_frame = cv2.resize(
+                        stitched_frame, (self.finalSize[1], self.finalSize[0]))
 
                 frames.append(stitched_frame)
 
@@ -228,17 +237,25 @@ class VideoStitcher:
         print('[INFO]: {} saved'.format(self.video_out_path.split('/')[-1]))
 
 
-# stitcher1 = VideoStitcher(left_video_in_path='/Users/sarthakagrawal/Desktop/stitch/Inputs/Youtube/2_4v/LL.mp4',
-#                          right_video_in_path='/Users/sarthakagrawal/Desktop/stitch/Inputs/Youtube/2_4v/LR.mp4',
-#                          video_out_path='/Users/sarthakagrawal/Desktop/stitch/Inputs/Youtube/2_4v/L.mp4')
-# stitcher1.run()
+if __name__ == '__main__':
+    if isFourFrame:
+        stitcher1 = VideoStitcher(left_video_in_path='/Users/sarthakagrawal/Desktop/stitch/finalInputs/4Frame/4/LL.mp4',
+                                  right_video_in_path='/Users/sarthakagrawal/Desktop/stitch/finalInputs/4Frame/4/LR.mp4',
+                                  video_out_path='/Users/sarthakagrawal/Desktop/stitch/finalInputs/4Frame/4/L.mp4')
 
-# stitcher2 = VideoStitcher(left_video_in_path='/Users/sarthakagrawal/Desktop/stitch/Inputs/Youtube/2_4v/RL.mp4',
-#                          right_video_in_path='/Users/sarthakagrawal/Desktop/stitch/Inputs/Youtube/2_4v/RR.mp4',
-#                          video_out_path='/Users/sarthakagrawal/Desktop/stitch/Inputs/Youtube/2_4v/R.mp4')
-# stitcher2.run()
+        stitcher2 = VideoStitcher(left_video_in_path='/Users/sarthakagrawal/Desktop/stitch/finalInputs/4Frame/4/RL.mp4',
+                                  right_video_in_path='/Users/sarthakagrawal/Desktop/stitch/finalInputs/4Frame/4/RR.mp4',
+                                  video_out_path='/Users/sarthakagrawal/Desktop/stitch/finalInputs/4Frame/4/R.mp4')
 
-stitcher3 = VideoStitcher(left_video_in_path='/Users/sarthakagrawal/Desktop/stitch/Inputs/Youtube/4/L.mp4',
-                          right_video_in_path='/Users/sarthakagrawal/Desktop/stitch/Inputs/Youtube/4/R.mp4',
-                          video_out_path='/Users/sarthakagrawal/Desktop/stitch/Inputs/Youtube/4/LR.mp4')
-stitcher3.run()
+        p1 = multiprocessing.Process(target=stitcher1.run)
+        p2 = multiprocessing.Process(target=stitcher2.run)
+
+        p1.start()
+        p2.start()
+        p1.join()
+        p2.join()
+
+    stitcher3 = VideoStitcher(left_video_in_path='/Users/sarthakagrawal/Desktop/stitch/finalInputs/4Frame/4/L.mp4',
+                              right_video_in_path='/Users/sarthakagrawal/Desktop/stitch/finalInputs/4Frame/4/R.mp4',
+                              video_out_path='/Users/sarthakagrawal/Desktop/stitch/finalInputs/4Frame/4/out.mp4')
+    stitcher3.run()
