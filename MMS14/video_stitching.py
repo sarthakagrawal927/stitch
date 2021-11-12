@@ -6,19 +6,29 @@ import os
 import time
 import multiprocessing
 
+# Set variables as per requirements
+
+# decides the minimum number of matches you want to go forward with to compute homography
 minMatches = 30
+
+# display intermidiate results
 currentFrameShow = True
-needLeftClockWiseRotation = False
-needRightClockWiseRotation = False
-showFeatureMatching = True
-alwaysComputeHomography = False
+
+# Display 1st screen with matched feature points
+showFeatureMatching = False
+
+# remove extra black spots (post processing)
 trimNeeded = True
-slowDownForScreenShot = False
+
+# Decide frequency of homography computation as per requirements
 computeHomographyEveryNSeconds = False
-computeHomographyAfter = 10
-isFourFrame = True
+N = 10
+
+# Use this for 4 frame inputs
+isFourFrame = False
 
 
+# Post processing to remove extra black spots
 def trim(frame):
     # crop top
     if not np.sum(frame[0]):
@@ -49,17 +59,13 @@ class VideoStitcher(multiprocessing.Process):
 
         # Initialize the saved homography matrix
         self.saved_homo_matrix = None
+
+        # Initialize the fixed frame size for output video
         self.finalSize = None
 
     def stitch(self, images, ratio=0.75, reproj_thresh=100.0):
         # Unpack the images
         (image_b, image_a) = images
-
-        if needLeftClockWiseRotation:
-            image_a = cv2.rotate(image_a, cv2.ROTATE_90_CLOCKWISE)
-
-        if needRightClockWiseRotation:
-            image_b = cv2.rotate(image_b, cv2.ROTATE_90_CLOCKWISE)
 
         if currentFrameShow:
             cv2.imshow("image1", image_a)
@@ -70,7 +76,7 @@ class VideoStitcher(multiprocessing.Process):
 
         self.frameCount += 1
 
-        if self.saved_homo_matrix is None or (self.frameCount % computeHomographyAfter == 0 and computeHomographyEveryNSeconds is True):
+        if self.saved_homo_matrix is None or (self.frameCount % N == 0 and computeHomographyEveryNSeconds is True):
 
             # Detect keypoints and extract
             (keypoints_a, features_a) = self.detect_and_extract(image_a)
@@ -84,20 +90,22 @@ class VideoStitcher(multiprocessing.Process):
             if matched_keypoints is None:
                 return None
 
+            # displays the matching keypoints
             if showFeatureMatching is True:
                 visual = self.draw_matches(
                     image_b, image_a, keypoints_a, keypoints_b, matched_keypoints[0], matched_keypoints[2])
                 cv2.imwrite("matching.png", imutils.resize(
                     visual, output_shape[1]))
+
             # Save the homography matrix
             self.saved_homo_matrix = matched_keypoints[1]
-            # print(image_a.shape, image_b.shape, output_shape)
 
             # Apply a perspective transform to stitch the images together using the saved homography matrix
         result = cv2.warpPerspective(
             image_a, self.saved_homo_matrix, output_shape)
 
         result[0:image_b.shape[0], 0:image_b.shape[1]] = image_b
+
         # Return the stitched image
         return result
 
@@ -143,6 +151,7 @@ class VideoStitcher(multiprocessing.Process):
         return None
 
     @staticmethod
+    # used to show the feature matching
     def draw_matches(image_a, image_b, keypoints_a, keypoints_b, matches, status):
         # Initialize the output visualization image
         (height_a, width_a) = image_a.shape[:2]
@@ -178,8 +187,6 @@ class VideoStitcher(multiprocessing.Process):
                        int(right_video.get(cv2.CAP_PROP_FRAME_COUNT)))
 
         fps = int(left_video.get(cv2.CAP_PROP_FPS))
-        print(n_frames)
-        print(fps)
         frames = []
 
         for _ in tqdm.tqdm(np.arange(n_frames)):
@@ -187,9 +194,6 @@ class VideoStitcher(multiprocessing.Process):
             ok, left = left_video.read()
 
             _, right = right_video.read()
-
-            if slowDownForScreenShot:
-                time.sleep(0.05)
 
             if ok:
                 # Stitch the frames together to form the panorama
@@ -203,8 +207,11 @@ class VideoStitcher(multiprocessing.Process):
                 if trimNeeded is True:
                     stitched_frame = trim(stitched_frame)
 
+                # initialize the finalSize of each frame
                 if self.finalSize is None:
                     self.finalSize = stitched_frame.shape
+
+                # if homography is computed multiple times - causing alteration in frame sizes, we resize the frame
                 elif computeHomographyEveryNSeconds:
                     stitched_frame = cv2.resize(
                         stitched_frame, (self.finalSize[1], self.finalSize[0]))
@@ -238,24 +245,34 @@ class VideoStitcher(multiprocessing.Process):
 
 
 if __name__ == '__main__':
+    # four frame inputs, stitcher 1 computes 1 & 2, stitcher 2 computes 3 & 4 and stitcher 3 computes the final output
     if isFourFrame:
-        stitcher1 = VideoStitcher(left_video_in_path='/Users/sarthakagrawal/Desktop/stitch/finalInputs/4Frame/4/LL.mp4',
-                                  right_video_in_path='/Users/sarthakagrawal/Desktop/stitch/finalInputs/4Frame/4/LR.mp4',
-                                  video_out_path='/Users/sarthakagrawal/Desktop/stitch/finalInputs/4Frame/4/L.mp4')
+        stitcher1 = VideoStitcher(left_video_in_path='./VideoInputsOutputs/4Frame/Aerial/1.mp4',
+                                  right_video_in_path='./VideoInputsOutputs/4Frame/Aerial/2.mp4',
+                                  video_out_path='./VideoInputsOutputs/4Frame/Aerial/12.mp4')
 
-        stitcher2 = VideoStitcher(left_video_in_path='/Users/sarthakagrawal/Desktop/stitch/finalInputs/4Frame/4/RL.mp4',
-                                  right_video_in_path='/Users/sarthakagrawal/Desktop/stitch/finalInputs/4Frame/4/RR.mp4',
-                                  video_out_path='/Users/sarthakagrawal/Desktop/stitch/finalInputs/4Frame/4/R.mp4')
+        stitcher2 = VideoStitcher(left_video_in_path='./VideoInputsOutputs/4Frame/Aerial/3.mp4',
+                                  right_video_in_path='./VideoInputsOutputs/4Frame/Aerial/4.mp4',
+                                  video_out_path='./VideoInputsOutputs/4Frame/Aerial/34.mp4')
 
+        # starts 2 process in parallel
         p1 = multiprocessing.Process(target=stitcher1.run)
         p2 = multiprocessing.Process(target=stitcher2.run)
 
         p1.start()
         p2.start()
+
+        # waits for the processes to finish before starting the 3rd stitching process
         p1.join()
         p2.join()
+        stitcher3 = VideoStitcher(left_video_in_path='./VideoInputsOutputs/4Frame/Aerial/12.mp4',
+                                  right_video_in_path='./VideoInputsOutputs/4Frame/Aerial/34.mp4',
+                                  video_out_path='./VideoInputsOutputs/4Frame/Aerial/output.mp4')
+        stitcher3.run()
 
-    stitcher3 = VideoStitcher(left_video_in_path='/Users/sarthakagrawal/Desktop/stitch/finalInputs/4Frame/4/L.mp4',
-                              right_video_in_path='/Users/sarthakagrawal/Desktop/stitch/finalInputs/4Frame/4/R.mp4',
-                              video_out_path='/Users/sarthakagrawal/Desktop/stitch/finalInputs/4Frame/4/out.mp4')
-    stitcher3.run()
+    # for 2 frame inputs
+    else:
+        stitcher = VideoStitcher(left_video_in_path='./VideoInputsOutputs/2Frame/OverTaking/Left.mp4',
+                                 right_video_in_path='./VideoInputsOutputs/2Frame/OverTaking/Right.mp4',
+                                 video_out_path='./VideoInputsOutputs/2Frame/OverTaking/Output.mp4')
+        stitcher.run()
