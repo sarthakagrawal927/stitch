@@ -4,8 +4,5 @@ gui/mirror.py
 js-gui/__pycache__
 js-gui/pnpm-lock.yaml
 *.DS_STORE
-SamsungInput
-gui/outputs
-Inputs
 finalInputs
-MMS14/VideoInputsOutputs
+MMS14
